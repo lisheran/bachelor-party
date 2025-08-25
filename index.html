@@ -62,11 +62,28 @@
             flex-wrap: wrap;
         }
 
-        input, button {
+        .input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        input, button, label {
             padding: 12px 16px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 14px;
+        }
+
+        label {
+            background: #f9fafb;
+            border: none;
+            font-weight: 600;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
         }
 
         button {
@@ -233,7 +250,7 @@
 
         @media (max-width: 768px) {
             .content { padding: 15px; }
-            .input-group { flex-direction: column; }
+            .input-group, .input-row { flex-direction: column; }
             input, button { width: 100%; font-size: 16px; }
         }
     </style>
@@ -295,11 +312,16 @@
                 <!-- Activities Section -->
                 <div class="section">
                     <h2 class="section-title">🎯 Activities</h2>
-                    <div class="input-group">
+                    <div class="input-row">
                         <input type="text" id="activityName" placeholder="Activity Name" style="flex: 2;">
-                        <input type="datetime-local" id="activityDate" style="flex: 1;">
                         <input type="text" id="activityLocation" placeholder="Location" style="flex: 1;">
                         <input type="number" id="activityCost" placeholder="Cost per person ($)" min="0" step="0.01" style="flex: 1;">
+                    </div>
+                    <div class="input-row">
+                        <label>Start:</label>
+                        <input type="datetime-local" id="activityStartDate" style="flex: 1;">
+                        <label>End:</label>
+                        <input type="datetime-local" id="activityEndDate" style="flex: 1;">
                         <button onclick="addActivity()">Add Activity</button>
                     </div>
                     <div class="table-container">
@@ -307,7 +329,8 @@
                             <thead>
                                 <tr>
                                     <th>Activity</th>
-                                    <th>Date & Time</th>
+                                    <th>Start Date & Time</th>
+                                    <th>End Date & Time</th>
                                     <th>Location</th>
                                     <th>Cost/Person</th>
                                     <th>Actions</th>
@@ -315,7 +338,7 @@
                             </thead>
                             <tbody id="activitiesBody">
                                 <tr class="empty-state">
-                                    <td colspan="5">No activities planned yet</td>
+                                    <td colspan="6">No activities planned yet</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -370,13 +393,18 @@
             document.getElementById('adminSections').style.display = 'none';
             
             const mainContent = document.getElementById('mainContent');
+            
+            // Keep the stats, but replace the admin content
+            const statsHtml = document.querySelector('.stats').outerHTML;
+            
             mainContent.innerHTML = `
+                ${statsHtml}
                 <div class="attendee-selector">
                     <h2 style="text-align: center; color: #667eea; margin-bottom: 10px;">Welcome to Anthony's Bachelor Party! 🎉</h2>
                     <p style="text-align: center; color: #666; margin-bottom: 30px;">Select your name to view your payment status and event details</p>
                     
                     <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 10px; font-weight: 600;">Who are you?</label>
+                        <label style="display: block; margin-bottom: 10px; font-weight: 600; padding: 0; background: none; border: none;">Who are you?</label>
                         <select id="attendeeSelector" style="width: 100%; padding: 15px; font-size: 16px; border: 2px solid #e0e0e0; border-radius: 10px;">
                             <option value="">-- Select Your Name --</option>
                             ${attendees.map((att, idx) => `<option value="${idx}">${att.name}</option>`).join('')}
@@ -392,6 +420,7 @@
                         <div style="background: #f9fafb; padding: 15px; border-radius: 10px;">
                             <p><strong>Total Activities:</strong> ${activities.length}</p>
                             <p><strong>Total Attendees:</strong> ${attendees.length}</p>
+                            <p><strong>Total Cost:</strong> $${activities.reduce((sum, activity) => sum + activity.cost, 0).toFixed(2)}</p>
                         </div>
                     </div>
                 </div>
@@ -451,13 +480,16 @@
                         <h3 style="color: #f59e0b; margin: 20px 0 15px;">⏳ Pending Payments (${unpaidActivities.length})</h3>
                         ${unpaidActivities.map(activity => {
                             const venmoLink = `https://venmo.com/${venmoUsername}?txn=pay&amount=${activity.cost}&note=${encodeURIComponent('Bachelor Party - ' + activity.name)}`;
-                            const date = new Date(activity.date);
+                            const startDate = new Date(activity.startDate);
+                            const endDate = new Date(activity.endDate);
+                            const duration = activity.endDate ? ` - ${endDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}` : '';
+                            
                             return `
                                 <div class="activity-card pending">
                                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
                                         <div>
                                             <strong>${activity.name}</strong><br>
-                                            <small>📅 ${date.toLocaleDateString()} at ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small><br>
+                                            <small>📅 ${startDate.toLocaleDateString()} at ${startDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${duration}</small><br>
                                             <small>📍 ${activity.location || 'TBD'}</small>
                                         </div>
                                         <div style="text-align: right;">
@@ -474,13 +506,16 @@
                     ${paidActivities.length > 0 ? `
                         <h3 style="color: #10b981; margin: 20px 0 15px;">✅ Paid Activities (${paidActivities.length})</h3>
                         ${paidActivities.map(activity => {
-                            const date = new Date(activity.date);
+                            const startDate = new Date(activity.startDate);
+                            const endDate = new Date(activity.endDate);
+                            const duration = activity.endDate ? ` - ${endDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}` : '';
+                            
                             return `
                                 <div class="activity-card paid">
                                     <div style="display: flex; justify-content: space-between; align-items: center;">
                                         <div>
                                             <strong>${activity.name}</strong><br>
-                                            <small>📅 ${date.toLocaleDateString()} at ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small><br>
+                                            <small>📅 ${startDate.toLocaleDateString()} at ${startDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${duration}</small><br>
                                             <small>📍 ${activity.location || 'TBD'}</small>
                                         </div>
                                         <div>
@@ -496,13 +531,16 @@
                     ${freeActivities.length > 0 ? `
                         <h3 style="color: #667eea; margin: 20px 0 15px;">🎉 Free Activities (${freeActivities.length})</h3>
                         ${freeActivities.map(activity => {
-                            const date = new Date(activity.date);
+                            const startDate = new Date(activity.startDate);
+                            const endDate = new Date(activity.endDate);
+                            const duration = activity.endDate ? ` - ${endDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}` : '';
+                            
                             return `
                                 <div class="activity-card free">
                                     <div style="display: flex; justify-content: space-between; align-items: center;">
                                         <div>
                                             <strong>${activity.name}</strong><br>
-                                            <small>📅 ${date.toLocaleDateString()} at ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small><br>
+                                            <small>📅 ${startDate.toLocaleDateString()} at ${startDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${duration}</small><br>
                                             <small>📍 ${activity.location || 'TBD'}</small>
                                         </div>
                                         <button class="calendar-btn" onclick="downloadCalendar(${activities.indexOf(activity)})">📅 Calendar</button>
@@ -529,8 +567,8 @@
 
         function downloadCalendar(activityIndex) {
             const activity = activities[activityIndex];
-            const startDate = new Date(activity.date);
-            const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
+            const startDate = new Date(activity.startDate);
+            const endDate = activity.endDate ? new Date(activity.endDate) : new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
             
             const formatDate = (date) => {
                 return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
@@ -577,7 +615,8 @@ END:VCALENDAR`;
 
         function addActivity() {
             const name = document.getElementById('activityName').value.trim();
-            const date = document.getElementById('activityDate').value;
+            const startDate = document.getElementById('activityStartDate').value;
+            const endDate = document.getElementById('activityEndDate').value;
             const location = document.getElementById('activityLocation').value.trim();
             const cost = parseFloat(document.getElementById('activityCost').value) || 0;
             
@@ -586,11 +625,17 @@ END:VCALENDAR`;
                 return;
             }
             
-            activities.push({ name, date, location, cost });
+            if (!startDate) {
+                alert('Please enter a start date and time');
+                return;
+            }
+            
+            activities.push({ name, startDate, endDate, location, cost });
             
             // Clear inputs
             document.getElementById('activityName').value = '';
-            document.getElementById('activityDate').value = '';
+            document.getElementById('activityStartDate').value = '';
+            document.getElementById('activityEndDate').value = '';
             document.getElementById('activityLocation').value = '';
             document.getElementById('activityCost').value = '';
             
@@ -643,6 +688,11 @@ END:VCALENDAR`;
         }
 
         function generateShareLink() {
+            if (attendees.length === 0) {
+                alert('Please add at least one attendee first');
+                return;
+            }
+            
             const baseURL = window.location.href.split('?')[0];
             const data = { attendees, activities, payments };
             const encodedData = btoa(JSON.stringify(data));
@@ -710,18 +760,21 @@ END:VCALENDAR`;
         function updateActivitiesTable() {
             const tbody = document.getElementById('activitiesBody');
             if (activities.length === 0) {
-                tbody.innerHTML = '<tr class="empty-state"><td colspan="5">No activities planned yet</td></tr>';
+                tbody.innerHTML = '<tr class="empty-state"><td colspan="6">No activities planned yet</td></tr>';
                 return;
             }
             
             tbody.innerHTML = activities.map((activity, index) => {
-                const date = activity.date ? new Date(activity.date) : null;
-                const dateStr = date ? `${date.toLocaleDateString()} ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}` : 'TBD';
+                const startDate = activity.startDate ? new Date(activity.startDate) : null;
+                const endDate = activity.endDate ? new Date(activity.endDate) : null;
+                const startStr = startDate ? `${startDate.toLocaleDateString()} ${startDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}` : 'TBD';
+                const endStr = endDate ? `${endDate.toLocaleDateString()} ${endDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}` : 'TBD';
                 
                 return `
                     <tr>
                         <td>${activity.name}</td>
-                        <td>${dateStr}</td>
+                        <td>${startStr}</td>
+                        <td>${endStr}</td>
                         <td>${activity.location || 'TBD'}</td>
                         <td>$${activity.cost.toFixed(2)}</td>
                         <td>
