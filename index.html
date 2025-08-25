@@ -32,11 +32,40 @@
             color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
         }
 
         .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
+        }
+
+        .sync-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .sync-connected {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .sync-disconnected {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .sync-saving {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
         }
 
         .content {
@@ -69,7 +98,7 @@
             flex-wrap: wrap;
         }
 
-        input, button, label {
+        input, button, label, textarea {
             padding: 12px 16px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
@@ -92,11 +121,28 @@
             border: none;
             cursor: pointer;
             font-weight: 600;
+            transition: all 0.3s ease;
         }
 
         button:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .github-setup {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .setup-step {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
         }
 
         .table-container {
@@ -137,6 +183,7 @@
         .delete-btn { background: #ef4444; }
         .edit-btn { background: #f59e0b; }
         .share-btn { background: #ec4899; }
+        .github-btn { background: #24292e; }
 
         .payment-checkbox {
             width: 20px;
@@ -248,21 +295,66 @@
             margin: 5px;
         }
 
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         @media (max-width: 768px) {
             .content { padding: 15px; }
             .input-group, .input-row { flex-direction: column; }
             input, button { width: 100%; font-size: 16px; }
+            .sync-status { position: static; margin-bottom: 10px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <div id="syncStatus" class="sync-status sync-disconnected">🔄 Not Connected</div>
             <h1>🎉 Anthony's Bachelor Party 🍻</h1>
             <p id="headerSubtitle">Event Management & Payment Tracking</p>
         </div>
         
         <div class="content" id="mainContent">
+            <!-- GitHub Setup (hidden after setup) -->
+            <div id="githubSetup" class="github-setup">
+                <h2 style="color: #24292e; margin-bottom: 20px;">🔧 One-Time GitHub Setup</h2>
+                <p style="margin-bottom: 20px;">To sync your data across all devices, we'll use GitHub Gists. This is free and keeps your data secure in your GitHub account.</p>
+                
+                <div class="setup-step">
+                    <h3>Step 1: Create GitHub Personal Access Token</h3>
+                    <p>1. Go to <a href="https://github.com/settings/tokens" target="_blank">GitHub Settings → Personal Access Tokens → Tokens (classic)</a></p>
+                    <p>2. Click "Generate new token (classic)"</p>
+                    <p>3. Give it a name like "Bachelor Party App"</p>
+                    <p>4. Check ONLY the "gist" permission</p>
+                    <p>5. Click "Generate token" and copy it</p>
+                </div>
+                
+                <div class="setup-step">
+                    <h3>Step 2: Enter Your Token</h3>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <input type="password" id="githubToken" placeholder="Paste your GitHub token here" style="flex: 1;">
+                        <button onclick="setupGitHub()" class="github-btn">Connect GitHub</button>
+                    </div>
+                    <p style="margin-top: 10px; font-size: 12px; color: #666;">Your token is stored securely in your browser only.</p>
+                </div>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button onclick="skipGitHub()" style="background: #6b7280;">Skip for Now (Local Storage Only)</button>
+                </div>
+            </div>
+
             <!-- Statistics -->
             <div class="stats">
                 <div class="stat-card">
@@ -281,6 +373,16 @@
 
             <!-- Admin sections -->
             <div id="adminSections">
+                <!-- GitHub Status Section -->
+                <div class="section" id="githubStatusSection" style="display: none;">
+                    <h2 class="section-title">🔄 Sync Status</h2>
+                    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+                        <span id="lastSyncTime" style="color: #666;">Never synced</span>
+                        <button onclick="forcSync()" style="padding: 8px 12px; font-size: 12px;">Force Sync</button>
+                        <button onclick="resetGitHub()" style="padding: 8px 12px; font-size: 12px; background: #ef4444;">Disconnect</button>
+                    </div>
+                </div>
+
                 <!-- Share Link Section -->
                 <div class="section">
                     <h2 class="section-title">🔗 Share with Everyone</h2>
@@ -361,31 +463,291 @@
         const venmoUsername = 'alisheron';
         let isReadOnly = false;
         let viewingAttendee = null;
+        
+        // GitHub integration
+        let githubToken = '';
+        let gistId = '';
+        let isGitHubConnected = false;
+        let lastSyncTime = null;
 
         // Initialize
         window.onload = function() {
             checkURLParams();
             if (!isReadOnly) {
-                loadData();
+                loadGitHubSettings();
+                if (isGitHubConnected) {
+                    loadFromGitHub();
+                } else {
+                    loadLocalData();
+                }
             }
         };
 
         function checkURLParams() {
             const urlParams = new URLSearchParams(window.location.search);
             const view = urlParams.get('view');
-            const dataParam = urlParams.get('data');
+            const gistParam = urlParams.get('gist');
             
-            if (view === 'readonly' && dataParam) {
+            if (view === 'readonly' && gistParam) {
+                // Load from specific gist for read-only view
                 isReadOnly = true;
-                try {
-                    const decodedData = JSON.parse(atob(dataParam));
-                    attendees = decodedData.attendees || [];
-                    activities = decodedData.activities || [];
-                    payments = decodedData.payments || {};
-                    setupAttendeeView();
-                } catch (e) {
-                    console.error('Error loading data:', e);
+                loadFromSpecificGist(gistParam);
+            } else if (view === 'readonly') {
+                // Fallback to old data parameter method
+                const dataParam = urlParams.get('data');
+                if (dataParam) {
+                    isReadOnly = true;
+                    try {
+                        const decodedData = JSON.parse(atob(dataParam));
+                        attendees = decodedData.attendees || [];
+                        activities = decodedData.activities || [];
+                        payments = decodedData.payments || {};
+                        setupAttendeeView();
+                    } catch (e) {
+                        console.error('Error loading data:', e);
+                    }
                 }
+            }
+        }
+
+        async function loadFromSpecificGist(gistId) {
+            try {
+                updateSyncStatus('loading', 'Loading...');
+                const response = await fetch(`https://api.github.com/gists/${gistId}`);
+                
+                if (response.ok) {
+                    const gist = await response.json();
+                    const content = gist.files['bachelor-party-data.json'].content;
+                    const data = JSON.parse(content);
+                    
+                    attendees = data.attendees || [];
+                    activities = data.activities || [];
+                    payments = data.payments || {};
+                    
+                    setupAttendeeView();
+                } else {
+                    console.error('Failed to load gist:', response.statusText);
+                    setupAttendeeView(); // Show empty view
+                }
+            } catch (error) {
+                console.error('Error loading from gist:', error);
+                setupAttendeeView(); // Show empty view
+            }
+        }
+
+        function loadGitHubSettings() {
+            githubToken = localStorage.getItem('githubToken') || '';
+            gistId = localStorage.getItem('gistId') || '';
+            isGitHubConnected = githubToken && gistId;
+            lastSyncTime = localStorage.getItem('lastSyncTime');
+
+            if (isGitHubConnected) {
+                document.getElementById('githubSetup').style.display = 'none';
+                document.getElementById('githubStatusSection').style.display = 'block';
+                updateSyncStatus('connected', '✅ Connected to GitHub');
+                updateLastSyncDisplay();
+            } else {
+                updateSyncStatus('disconnected', '🔄 Not Connected');
+            }
+        }
+
+        async function setupGitHub() {
+            const token = document.getElementById('githubToken').value.trim();
+            if (!token) {
+                alert('Please enter your GitHub token');
+                return;
+            }
+
+            try {
+                updateSyncStatus('loading', 'Connecting...');
+                
+                // Test the token by trying to list gists
+                const testResponse = await fetch('https://api.github.com/gists', {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (!testResponse.ok) {
+                    throw new Error('Invalid token or insufficient permissions');
+                }
+
+                // Create initial gist with current data
+                const initialData = {
+                    attendees: attendees,
+                    activities: activities,
+                    payments: payments,
+                    lastUpdated: new Date().toISOString()
+                };
+
+                const createGistResponse = await fetch('https://api.github.com/gists', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        description: 'Anthony\'s Bachelor Party Data',
+                        public: false,
+                        files: {
+                            'bachelor-party-data.json': {
+                                content: JSON.stringify(initialData, null, 2)
+                            }
+                        }
+                    })
+                });
+
+                if (!createGistResponse.ok) {
+                    throw new Error('Failed to create gist');
+                }
+
+                const gist = await createGistResponse.json();
+                
+                // Save settings
+                githubToken = token;
+                gistId = gist.id;
+                isGitHubConnected = true;
+                lastSyncTime = new Date().toISOString();
+
+                localStorage.setItem('githubToken', githubToken);
+                localStorage.setItem('gistId', gistId);
+                localStorage.setItem('lastSyncTime', lastSyncTime);
+
+                // Update UI
+                document.getElementById('githubSetup').style.display = 'none';
+                document.getElementById('githubStatusSection').style.display = 'block';
+                updateSyncStatus('connected', '✅ Connected to GitHub');
+                updateLastSyncDisplay();
+
+                alert('Successfully connected to GitHub! Your data will now sync across all devices.');
+
+            } catch (error) {
+                console.error('GitHub setup error:', error);
+                updateSyncStatus('disconnected', '❌ Connection Failed');
+                alert('Failed to connect to GitHub: ' + error.message);
+            }
+        }
+
+        function skipGitHub() {
+            document.getElementById('githubSetup').style.display = 'none';
+            loadLocalData();
+        }
+
+        function resetGitHub() {
+            if (confirm('This will disconnect GitHub sync and use local storage only. Continue?')) {
+                localStorage.removeItem('githubToken');
+                localStorage.removeItem('gistId');
+                localStorage.removeItem('lastSyncTime');
+                
+                githubToken = '';
+                gistId = '';
+                isGitHubConnected = false;
+                lastSyncTime = null;
+
+                document.getElementById('githubSetup').style.display = 'block';
+                document.getElementById('githubStatusSection').style.display = 'none';
+                updateSyncStatus('disconnected', '🔄 Not Connected');
+            }
+        }
+
+        async function saveToGitHub() {
+            if (!isGitHubConnected) return;
+
+            try {
+                updateSyncStatus('saving', '💾 Saving...');
+
+                const data = {
+                    attendees: attendees,
+                    activities: activities,
+                    payments: payments,
+                    lastUpdated: new Date().toISOString()
+                };
+
+                const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `token ${githubToken}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        files: {
+                            'bachelor-party-data.json': {
+                                content: JSON.stringify(data, null, 2)
+                            }
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    lastSyncTime = new Date().toISOString();
+                    localStorage.setItem('lastSyncTime', lastSyncTime);
+                    updateSyncStatus('connected', '✅ Synced');
+                    updateLastSyncDisplay();
+                } else {
+                    throw new Error('Failed to save to GitHub');
+                }
+
+            } catch (error) {
+                console.error('Error saving to GitHub:', error);
+                updateSyncStatus('connected', '⚠️ Sync Error');
+            }
+        }
+
+        async function loadFromGitHub() {
+            if (!isGitHubConnected) return;
+
+            try {
+                updateSyncStatus('loading', 'Loading...');
+
+                const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+                    headers: {
+                        'Authorization': `token ${githubToken}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (response.ok) {
+                    const gist = await response.json();
+                    const content = gist.files['bachelor-party-data.json'].content;
+                    const data = JSON.parse(content);
+
+                    attendees = data.attendees || [];
+                    activities = data.activities || [];
+                    payments = data.payments || {};
+
+                    updateTables();
+                    updateSyncStatus('connected', '✅ Connected');
+                } else {
+                    throw new Error('Failed to load from GitHub');
+                }
+
+            } catch (error) {
+                console.error('Error loading from GitHub:', error);
+                updateSyncStatus('connected', '⚠️ Load Error');
+                loadLocalData(); // Fallback to local data
+            }
+        }
+
+        function forcSync() {
+            if (isGitHubConnected) {
+                loadFromGitHub();
+            }
+        }
+
+        function updateSyncStatus(status, text) {
+            const statusEl = document.getElementById('syncStatus');
+            statusEl.className = `sync-status sync-${status}`;
+            statusEl.textContent = text;
+        }
+
+        function updateLastSyncDisplay() {
+            if (lastSyncTime) {
+                const date = new Date(lastSyncTime);
+                document.getElementById('lastSyncTime').textContent = 
+                    `Last synced: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
             }
         }
 
@@ -694,13 +1056,30 @@ END:VCALENDAR`;
             }
             
             const baseURL = window.location.href.split('?')[0];
-            const data = { attendees, activities, payments };
-            const encodedData = btoa(JSON.stringify(data));
-            const shareLink = `${baseURL}?view=readonly&data=${encodedData}`;
+            let shareLink;
+            
+            if (isGitHubConnected) {
+                // Use gist-based sharing for real-time updates
+                shareLink = `${baseURL}?view=readonly&gist=${gistId}`;
+            } else {
+                // Fallback to data parameter method
+                const data = { attendees, activities, payments };
+                const encodedData = btoa(JSON.stringify(data));
+                shareLink = `${baseURL}?view=readonly&data=${encodedData}`;
+            }
             
             document.getElementById('shareContainer').innerHTML = `
                 <div class="share-container">
                     <h3>📱 Send This Link to Everyone:</h3>
+                    ${isGitHubConnected ? `
+                        <div style="background: #d1fae5; padding: 10px; border-radius: 5px; margin-bottom: 15px; border: 1px solid #10b981;">
+                            <strong>🔄 Live Updates Enabled!</strong> This link will always show the latest data from GitHub.
+                        </div>
+                    ` : `
+                        <div style="background: #fef3c7; padding: 10px; border-radius: 5px; margin-bottom: 15px; border: 1px solid #f59e0b;">
+                            <strong>📸 Snapshot Link:</strong> This link contains current data only. Set up GitHub sync for live updates.
+                        </div>
+                    `}
                     <div class="share-link">
                         <input type="text" value="${shareLink}" readonly style="font-size: 14px;">
                         <button onclick="copyToClipboard('${shareLink}')">Copy Link</button>
@@ -841,7 +1220,7 @@ END:VCALENDAR`;
             document.getElementById('totalCost').textContent = `$${totalCost.toFixed(2)}`;
         }
 
-        function loadData() {
+        function loadLocalData() {
             const savedAttendees = localStorage.getItem('bachelorPartyAttendees');
             const savedActivities = localStorage.getItem('bachelorPartyActivities');
             const savedPayments = localStorage.getItem('bachelorPartyPayments');
@@ -854,9 +1233,15 @@ END:VCALENDAR`;
         }
 
         function saveData() {
+            // Save to localStorage as backup
             localStorage.setItem('bachelorPartyAttendees', JSON.stringify(attendees));
             localStorage.setItem('bachelorPartyActivities', JSON.stringify(activities));
             localStorage.setItem('bachelorPartyPayments', JSON.stringify(payments));
+            
+            // Save to GitHub if connected
+            if (isGitHubConnected) {
+                saveToGitHub();
+            }
         }
     </script>
 </body>
