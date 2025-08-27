@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bachelor Party Planner</title>
+    <title>Anthony's Bachelor Party</title>
     <style>
         * {
             margin: 0;
@@ -12,14 +12,14 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
@@ -32,17 +32,46 @@
             color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
         }
 
         .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
         }
 
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
+        .sync-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .sync-connected {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .sync-disconnected {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .sync-saving {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .sync-loading {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
         }
 
         .content {
@@ -68,18 +97,28 @@
             flex-wrap: wrap;
         }
 
-        input, select, button, textarea {
+        .input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        input, button, label, textarea {
             padding: 12px 16px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 14px;
-            transition: all 0.3s ease;
         }
 
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        label {
+            background: #f9fafb;
+            border: none;
+            font-weight: 600;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
         }
 
         button {
@@ -88,8 +127,7 @@
             border: none;
             cursor: pointer;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
         }
 
         button:hover {
@@ -97,8 +135,28 @@
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
-        button:active {
-            transform: translateY(0);
+        .github-setup {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .setup-step {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .token-reveal {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
         }
 
         .table-container {
@@ -119,9 +177,6 @@
             padding: 15px;
             text-align: left;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-size: 0.9em;
         }
 
         td {
@@ -129,102 +184,25 @@
             border-bottom: 1px solid #f0f0f0;
         }
 
-        tr:hover {
-            background: #f8f9ff;
-        }
-
         .action-btn {
             padding: 6px 12px;
             margin: 2px;
             font-size: 12px;
             border-radius: 5px;
-        }
-
-        .delete-btn {
-            background: linear-gradient(135deg, #f56565 0%, #ed64a6 100%);
-        }
-
-        .venmo-btn {
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-        }
-
-        .calendar-btn {
-            background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
-        }
-
-        .edit-btn {
-            background: linear-gradient(135deg, #f59e0b 0%, #fb923c 100%);
-        }
-
-        .share-btn {
-            background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
-        }
-
-        .venmo-link {
-            color: #3b82f6;
-            text-decoration: none;
-            font-weight: 600;
-            display: inline-block;
-            padding: 5px 10px;
-            background: rgba(59, 130, 246, 0.1);
-            border-radius: 5px;
-            transition: all 0.3s ease;
-        }
-
-        .venmo-link:hover {
-            background: rgba(59, 130, 246, 0.2);
-            transform: translateX(5px);
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-content {
-            position: relative;
-            background: white;
-            margin: 50px auto;
-            padding: 30px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .close {
-            position: absolute;
-            right: 20px;
-            top: 20px;
-            font-size: 28px;
-            font-weight: bold;
-            color: #999;
+            border: none;
+            color: white;
             cursor: pointer;
-            transition: color 0.3s ease;
         }
 
-        .close:hover {
-            color: #333;
+        .delete-btn { background: #ef4444; }
+        .edit-btn { background: #f59e0b; }
+        .share-btn { background: #ec4899; }
+        .github-btn { background: #24292e; }
+
+        .payment-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
         }
 
         .stats {
@@ -240,26 +218,12 @@
             padding: 20px;
             border-radius: 10px;
             text-align: center;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-            transition: transform 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
         }
 
         .stat-value {
             font-size: 2em;
             font-weight: bold;
             margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 0.9em;
-            opacity: 0.9;
-            text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         .empty-state {
@@ -269,41 +233,19 @@
             font-style: italic;
         }
 
-        .payment-status {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .status-paid {
-            background: #10b981;
-            color: white;
-        }
-
-        .status-pending {
-            background: #f59e0b;
-            color: white;
-        }
-
-        .payment-checkbox {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-
-        .share-link-container {
-            background: #f3f4f6;
-            padding: 15px;
-            border-radius: 8px;
+        .share-container {
+            background: #f0fdf4;
+            padding: 20px;
+            border-radius: 10px;
             margin-top: 20px;
+            border: 2px solid #10b981;
         }
 
         .share-link {
             display: flex;
             gap: 10px;
             align-items: center;
+            margin: 10px 0;
         }
 
         .share-link input {
@@ -311,11 +253,14 @@
             background: white;
         }
 
-        .attendee-view {
-            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+        /* Attendee View Styles */
+        .attendee-selector {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
         .attendee-summary {
@@ -333,111 +278,103 @@
             margin: 10px 0;
         }
 
-        .read-only-notice {
-            background: #fef3c7;
-            border: 2px solid #f59e0b;
-            color: #92400e;
+        .activity-card {
             padding: 15px;
             border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid;
+        }
+
+        .pending { background: #fef3c7; border-color: #f59e0b; }
+        .paid { background: #d1fae5; border-color: #10b981; }
+        .free { background: #ede9fe; border-color: #667eea; }
+
+        .venmo-link {
+            background: #3b82f6;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px 0;
+        }
+
+        .calendar-btn {
+            background: #10b981;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .remembered-user {
+            background: #d1fae5;
+            padding: 15px;
+            border-radius: 10px;
             margin-bottom: 20px;
-            text-align: center;
-            font-weight: 600;
+            border: 2px solid #10b981;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 1.8em;
-            }
-            
-            .header p {
-                font-size: 1em;
-            }
-            
-            .content {
-                padding: 15px;
-            }
-            
-            .input-group {
-                flex-direction: column;
-            }
-            
-            input, select, button, textarea {
-                width: 100%;
-                font-size: 16px; /* Prevents zoom on iOS */
-            }
-            
-            .stats {
-                gap: 10px;
-            }
-            
-            .stat-card {
-                padding: 15px;
-            }
-            
-            .stat-value {
-                font-size: 1.5em;
-            }
-            
-            table {
-                font-size: 14px;
-            }
-            
-            th, td {
-                padding: 8px;
-            }
-            
-            .action-btn {
-                display: block;
-                width: 100%;
-                margin: 4px 0;
-            }
-            
-            .venmo-link {
-                display: block;
-                text-align: center;
-                margin: 4px 0;
-            }
-            
-            .modal-content {
-                width: 95%;
-                margin: 20px auto;
-                padding: 20px;
-            }
-            
-            .payment-checkbox {
-                width: 25px;
-                height: 25px;
-            }
-            
-            /* Stack table cells on very small screens */
-            @media (max-width: 480px) {
-                .table-container {
-                    margin: 0 -15px;
-                }
-                
-                table {
-                    font-size: 12px;
-                }
-                
-                th, td {
-                    padding: 6px;
-                    font-size: 12px;
-                }
-            }
+            .content { padding: 15px; }
+            .input-group, .input-row { flex-direction: column; }
+            input, button { width: 100%; font-size: 16px; }
+            .sync-status { position: static; margin-bottom: 10px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎉 Bachelor Party Planner 🍻</h1>
-            <p id="headerSubtitle">Anthony Lisheron's Bachelor Party</p>
+            <div id="syncStatus" class="sync-status sync-disconnected">🔄 Not Connected</div>
+            <h1>🎉 Anthony's Bachelor Party 🍻</h1>
+            <p id="headerSubtitle">Event Management & Payment Tracking</p>
         </div>
         
         <div class="content" id="mainContent">
-            <!-- Read-only notice (hidden by default) -->
-            <div id="readOnlyNotice" class="read-only-notice" style="display: none;">
-                📋 This is a read-only view. Contact the organizer to make changes.
+            <!-- GitHub Setup (hidden after setup) -->
+            <div id="githubSetup" class="github-setup">
+                <h2 style="color: #24292e; margin-bottom: 20px;">🔧 One-Time GitHub Setup</h2>
+                <p style="margin-bottom: 20px;">To sync your data across all devices, we'll use GitHub Gists. This is free and keeps your data secure in your GitHub account.</p>
+                
+                <div class="setup-step">
+                    <h3>Step 1: Create GitHub Personal Access Token</h3>
+                    <p>1. Go to <a href="https://github.com/settings/tokens" target="_blank">GitHub Settings → Personal Access Tokens → Tokens (classic)</a></p>
+                    <p>2. Click "Generate new token (classic)"</p>
+                    <p>3. Give it a name like "Bachelor Party App"</p>
+                    <p>4. Check ONLY the "gist" permission</p>
+                    <p>5. Click "Generate token" and copy it</p>
+                </div>
+                
+                <div class="setup-step">
+                    <h3>Step 2: Enter Your Token</h3>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <input type="password" id="githubToken" placeholder="Paste your GitHub token here" style="flex: 1;">
+                        <button onclick="setupGitHub()" class="github-btn">Connect GitHub</button>
+                    </div>
+                    <p style="margin-top: 10px; font-size: 12px; color: #666;">Your token is stored securely in your browser only.</p>
+                </div>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button onclick="skipGitHub()" style="background: #6b7280;">Skip for Now (Local Storage Only)</button>
+                </div>
             </div>
 
             <!-- Statistics -->
@@ -456,44 +393,25 @@
                 </div>
             </div>
 
-            <!-- Admin-only sections -->
+            <!-- Admin sections -->
             <div id="adminSections">
-                <!-- Sharing Section -->
-                <div class="section">
-                    <h2 class="section-title">🔗 Sharing</h2>
-                    <button onclick="generateShareLink()" class="share-btn">Generate Shareable Links</button>
-                    <button onclick="previewAttendeeView()" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); margin-left: 10px;">Preview Attendee View</button>
-                    <div id="shareLinkContainer" style="display: none;" class="share-link-container">
-                        <p style="margin-bottom: 15px; font-weight: 600;">📋 Individual Attendee Links</p>
-                        <p style="margin-bottom: 10px; color: #666;">Send each person their personalized link:</p>
-                        <div style="max-height: 300px; overflow-y: auto;">
-                            ${shareLinks.map(item => `
-                                <div style="background: #f9fafb; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <strong>${item.name}</strong>
-                                    <div class="share-link" style="margin-top: 5px;">
-                                        <input type="text" value="${item.link}" readonly style="font-size: 12px;">
-                                        <button onclick="copyToClipboard('${item.link}')">Copy</button>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;">
-                        <p style="margin-bottom: 10px; font-weight: 600;">🌐 General Read-Only Link</p>
-                        <p style="margin-bottom: 10px; color: #666;">For viewing all payment statuses:</p>
-                        <div class="share-link">
-                            <input type="text" id="shareLink" value="${baseURL}?view=readonly&data=${encodedData}" readonly>
-                            <button onclick="copyShareLink()">Copy Link</button>
-                        </div>
+                <!-- GitHub Status Section -->
+                <div class="section" id="githubStatusSection" style="display: none;">
+                    <h2 class="section-title">🔄 Sync Status</h2>
+                    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                        <span id="lastSyncTime" style="color: #666;">Never synced</span>
+                        <button onclick="forceSync()" style="padding: 8px 12px; font-size: 12px;">Force Sync</button>
+                        <button onclick="showToken()" style="padding: 8px 12px; font-size: 12px; background: #3b82f6;">Show Token</button>
+                        <button onclick="resetGitHub()" style="padding: 8px 12px; font-size: 12px; background: #ef4444;">Disconnect</button>
                     </div>
+                    <div id="tokenReveal" style="display: none;"></div>
                 </div>
 
-                <!-- Venmo Settings -->
+                <!-- Share Link Section -->
                 <div class="section">
-                    <h2 class="section-title">💳 Venmo Settings</h2>
-                    <div class="input-group">
-                        <input type="text" id="venmoUsername" placeholder="Your Venmo Username (e.g., @JohnDoe)" style="flex: 1;">
-                        <button onclick="saveVenmoUsername()">Save Username</button>
-                    </div>
+                    <h2 class="section-title">🔗 Share with Everyone</h2>
+                    <button onclick="generateShareLink()" class="share-btn">Generate Share Link</button>
+                    <div id="shareContainer" style="display: none;"></div>
                 </div>
 
                 <!-- Attendees Section -->
@@ -501,23 +419,16 @@
                     <h2 class="section-title">👥 Attendees</h2>
                     <div class="input-group">
                         <input type="text" id="attendeeName" placeholder="Name" style="flex: 1;">
-                        <input type="email" id="attendeeEmail" placeholder="Email" style="flex: 1;">
-                        <input type="tel" id="attendeePhone" placeholder="Phone" style="flex: 1;">
                         <button onclick="addAttendee()">Add Attendee</button>
                     </div>
                     <div class="table-container">
-                        <table id="attendeesTable">
+                        <table>
                             <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
-                                    <th>Actions</th>
-                                </tr>
+                                <tr><th>Name</th><th>Actions</th></tr>
                             </thead>
                             <tbody id="attendeesBody">
                                 <tr class="empty-state">
-                                    <td colspan="4">No attendees added yet. Start by adding the crew!</td>
+                                    <td colspan="2">No attendees added yet</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -527,29 +438,33 @@
                 <!-- Activities Section -->
                 <div class="section">
                     <h2 class="section-title">🎯 Activities</h2>
-                    <div class="input-group">
+                    <div class="input-row">
                         <input type="text" id="activityName" placeholder="Activity Name" style="flex: 2;">
-                        <input type="datetime-local" id="activityDate" style="flex: 1;">
-                        <input type="text" id="activityLocation" placeholder="Location" style="flex: 2;">
+                        <input type="text" id="activityLocation" placeholder="Location" style="flex: 1;">
                         <input type="number" id="activityCost" placeholder="Cost per person ($)" min="0" step="0.01" style="flex: 1;">
-                        <input type="text" id="activityDescription" placeholder="Description" style="flex: 2;">
+                    </div>
+                    <div class="input-row">
+                        <label>Start:</label>
+                        <input type="datetime-local" id="activityStartDate" style="flex: 1;">
+                        <label>End:</label>
+                        <input type="datetime-local" id="activityEndDate" style="flex: 1;">
                         <button onclick="addActivity()">Add Activity</button>
                     </div>
                     <div class="table-container">
-                        <table id="activitiesTable">
+                        <table>
                             <thead>
                                 <tr>
                                     <th>Activity</th>
-                                    <th>Date & Time</th>
+                                    <th>Start Date & Time</th>
+                                    <th>End Date & Time</th>
                                     <th>Location</th>
                                     <th>Cost/Person</th>
-                                    <th>Description</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="activitiesBody">
                                 <tr class="empty-state">
-                                    <td colspan="6">No activities planned yet. Time to get creative!</td>
+                                    <td colspan="6">No activities planned yet</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -558,180 +473,464 @@
             </div>
 
             <!-- Payment Tracking Section -->
-            <div class="section" id="paymentSection">
+            <div class="section">
                 <h2 class="section-title">💰 Payment Tracking</h2>
-                <div id="paymentTrackingContainer">
-                    <!-- Will be populated dynamically -->
-                </div>
+                <div id="paymentContainer"></div>
             </div>
-
-            <!-- Attendee Personal View (hidden by default) -->
-            <div id="attendeePersonalView" style="display: none;">
-                <!-- Will be populated dynamically -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Modal -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeEditModal()">&times;</span>
-            <h2 style="margin-bottom: 20px; color: #667eea;">Edit Item</h2>
-            <div id="editForm"></div>
         </div>
     </div>
 
     <script>
         let attendees = [];
         let activities = [];
-        let payments = {}; // Structure: { attendeeIndex_activityIndex: true/false }
-        let venmoUsername = '';
-        let editingIndex = -1;
-        let editingType = '';
+        let payments = {};
+        const venmoUsername = 'alisheron';
         let isReadOnly = false;
         let viewingAttendee = null;
+        
+        // GitHub integration
+        let githubToken = '';
+        let gistId = '';
+        let isGitHubConnected = false;
+        let lastSyncTime = null;
 
-        // Check URL parameters
+        // Initialize
+        window.onload = function() {
+            checkURLParams();
+            if (!isReadOnly) {
+                loadGitHubSettings();
+                if (isGitHubConnected) {
+                    loadFromGitHub();
+                } else {
+                    loadLocalData();
+                }
+            }
+        };
+
         function checkURLParams() {
             const urlParams = new URLSearchParams(window.location.search);
             const view = urlParams.get('view');
-            const attendeeId = urlParams.get('attendee');
-            const dataParam = urlParams.get('data');
+            const gistParam = urlParams.get('gist');
             
-            if (view === 'readonly' && dataParam) {
+            if (view === 'readonly' && gistParam) {
+                // Load from specific gist for read-only view
                 isReadOnly = true;
-                try {
-                    const decodedData = JSON.parse(atob(dataParam));
-                    attendees = decodedData.attendees || [];
-                    activities = decodedData.activities || [];
-                    payments = decodedData.payments || {};
-                    venmoUsername = decodedData.venmoUsername || '';
-                    
-                    if (attendeeId && attendeeId < attendees.length) {
-                        viewingAttendee = parseInt(attendeeId);
-                        setupReadOnlyView();
-                    } else {
-                        // Show attendee selector if no specific attendee is selected
-                        setupAttendeeSelector();
+                loadFromSpecificGist(gistParam);
+            } else if (view === 'readonly') {
+                // Fallback to old data parameter method
+                const dataParam = urlParams.get('data');
+                if (dataParam) {
+                    isReadOnly = true;
+                    try {
+                        const decodedData = JSON.parse(atob(dataParam));
+                        attendees = decodedData.attendees || [];
+                        activities = decodedData.activities || [];
+                        payments = decodedData.payments || {};
+                        setupAttendeeView();
+                    } catch (e) {
+                        console.error('Error loading data:', e);
                     }
-                } catch (e) {
-                    console.error('Error loading shared data:', e);
                 }
             }
         }
 
-        // Setup attendee selector view
-        function setupAttendeeSelector() {
-            document.getElementById('readOnlyNotice').style.display = 'none';
-            document.getElementById('adminSections').style.display = 'none';
-            document.getElementById('paymentSection').style.display = 'none';
-            
-            const mainContent = document.getElementById('mainContent');
-            
-            // Create selector interface
-            const selectorHTML = `
-                <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-                    <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);">
-                        <h2 style="text-align: center; color: #667eea; margin-bottom: 10px;">Welcome to Anthony Lisheron's Bachelor Party! 🎉</h2>
-                        <p style="text-align: center; color: #666; margin-bottom: 30px;">Select your name to view your payment status and event details</p>
-                        
-                        <div style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #333;">Who are you?</label>
-                            <select id="attendeeSelector" style="width: 100%; padding: 15px; font-size: 16px; border: 2px solid #e0e0e0; border-radius: 10px; background: white;">
-                                <option value="">-- Select Your Name --</option>
-                                ${attendees.map((att, idx) => `<option value="${idx}">${att.name}</option>`).join('')}
-                            </select>
-                        </div>
-                        
-                        <button onclick="viewMyStatus()" style="width: 100%; padding: 15px; font-size: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
-                            View My Status
-                        </button>
-                        
-                        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
-                            <h3 style="color: #333; margin-bottom: 15px;">📅 Event Overview</h3>
-                            <div style="background: #f9fafb; padding: 15px; border-radius: 10px;">
-                                <p style="margin-bottom: 10px;"><strong>Total Activities:</strong> ${activities.length}</p>
-                                <p style="margin-bottom: 10px;"><strong>Total Attendees:</strong> ${attendees.length}</p>
-                                <p><strong>Event Dates:</strong> ${getEventDateRange()}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            // Replace the main content with selector
-            mainContent.innerHTML = selectorHTML;
-            updateStats();
-        }
-
-        // Get event date range
-        function getEventDateRange() {
-            if (activities.length === 0) return 'No activities scheduled yet';
-            
-            const dates = activities.map(a => new Date(a.date)).sort((a, b) => a - b);
-            const firstDate = dates[0].toLocaleDateString();
-            const lastDate = dates[dates.length - 1].toLocaleDateString();
-            
-            if (firstDate === lastDate) {
-                return firstDate;
-            } else {
-                return `${firstDate} - ${lastDate}`;
+        async function loadFromSpecificGist(gistId) {
+            try {
+                updateSyncStatus('loading', '📥 Loading latest data...');
+                const response = await fetch(`https://api.github.com/gists/${gistId}`);
+                
+                if (response.ok) {
+                    const gist = await response.json();
+                    const content = gist.files['bachelor-party-data.json'].content;
+                    const data = JSON.parse(content);
+                    
+                    attendees = data.attendees || [];
+                    activities = data.activities || [];
+                    payments = data.payments || {};
+                    
+                    setupAttendeeView();
+                } else {
+                    console.error('Failed to load gist:', response.statusText);
+                    setupAttendeeView(); // Show empty view
+                }
+            } catch (error) {
+                console.error('Error loading from gist:', error);
+                setupAttendeeView(); // Show empty view
             }
         }
 
-        // View selected attendee's status
-        function viewMyStatus() {
+        function loadGitHubSettings() {
+            githubToken = localStorage.getItem('githubToken') || '';
+            gistId = localStorage.getItem('gistId') || '';
+            isGitHubConnected = githubToken && gistId;
+            lastSyncTime = localStorage.getItem('lastSyncTime');
+
+            if (isGitHubConnected) {
+                document.getElementById('githubSetup').style.display = 'none';
+                document.getElementById('githubStatusSection').style.display = 'block';
+                updateSyncStatus('connected', '✅ Connected to GitHub');
+                updateLastSyncDisplay();
+            } else {
+                updateSyncStatus('disconnected', '🔄 Not Connected');
+            }
+        }
+
+        async function setupGitHub() {
+            const token = document.getElementById('githubToken').value.trim();
+            if (!token) {
+                alert('Please enter your GitHub token');
+                return;
+            }
+
+            try {
+                updateSyncStatus('loading', 'Connecting...');
+                
+                // Test the token by trying to list gists
+                const testResponse = await fetch('https://api.github.com/gists', {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (!testResponse.ok) {
+                    throw new Error('Invalid token or insufficient permissions');
+                }
+
+                // Create initial gist with current data
+                const initialData = {
+                    attendees: attendees,
+                    activities: activities,
+                    payments: payments,
+                    lastUpdated: new Date().toISOString()
+                };
+
+                const createGistResponse = await fetch('https://api.github.com/gists', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        description: 'Anthony\'s Bachelor Party Data',
+                        public: false,
+                        files: {
+                            'bachelor-party-data.json': {
+                                content: JSON.stringify(initialData, null, 2)
+                            }
+                        }
+                    })
+                });
+
+                if (!createGistResponse.ok) {
+                    throw new Error('Failed to create gist');
+                }
+
+                const gist = await createGistResponse.json();
+                
+                // Save settings
+                githubToken = token;
+                gistId = gist.id;
+                isGitHubConnected = true;
+                lastSyncTime = new Date().toISOString();
+
+                localStorage.setItem('githubToken', githubToken);
+                localStorage.setItem('gistId', gistId);
+                localStorage.setItem('lastSyncTime', lastSyncTime);
+
+                // Update UI
+                document.getElementById('githubSetup').style.display = 'none';
+                document.getElementById('githubStatusSection').style.display = 'block';
+                updateSyncStatus('connected', '✅ Connected to GitHub');
+                updateLastSyncDisplay();
+
+                alert('Successfully connected to GitHub! Your data will now sync across all devices.');
+
+            } catch (error) {
+                console.error('GitHub setup error:', error);
+                updateSyncStatus('disconnected', '❌ Connection Failed');
+                alert('Failed to connect to GitHub: ' + error.message);
+            }
+        }
+
+        function skipGitHub() {
+            document.getElementById('githubSetup').style.display = 'none';
+            loadLocalData();
+        }
+
+        function resetGitHub() {
+            if (confirm('This will disconnect GitHub sync and use local storage only. Continue?')) {
+                localStorage.removeItem('githubToken');
+                localStorage.removeItem('gistId');
+                localStorage.removeItem('lastSyncTime');
+                
+                githubToken = '';
+                gistId = '';
+                isGitHubConnected = false;
+                lastSyncTime = null;
+
+                document.getElementById('githubSetup').style.display = 'block';
+                document.getElementById('githubStatusSection').style.display = 'none';
+                updateSyncStatus('disconnected', '🔄 Not Connected');
+            }
+        }
+
+        function showToken() {
+            const tokenReveal = document.getElementById('tokenReveal');
+            
+            if (tokenReveal.style.display === 'block') {
+                tokenReveal.style.display = 'none';
+                return;
+            }
+            
+            if (!githubToken) {
+                alert('No token found. Please set up GitHub sync first.');
+                return;
+            }
+            
+            tokenReveal.innerHTML = `
+                <div class="token-reveal">
+                    <h3 style="margin-bottom: 10px; color: #f59e0b;">🔑 Your GitHub Token:</h3>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <input type="text" value="${githubToken}" readonly style="flex: 1; font-family: monospace; font-size: 12px;">
+                        <button onclick="copyToClipboard('${githubToken}')" style="padding: 8px 12px; font-size: 12px;">Copy</button>
+                    </div>
+                    <p style="font-size: 12px; color: #666;">
+                        📱 Copy this token to use on your other devices. 
+                        <br>⚠️ Keep this secure - don't share with others!
+                    </p>
+                    <button onclick="hideToken()" style="margin-top: 10px; padding: 6px 10px; font-size: 11px; background: #6b7280;">Hide Token</button>
+                </div>
+            `;
+            tokenReveal.style.display = 'block';
+        }
+
+        function hideToken() {
+            document.getElementById('tokenReveal').style.display = 'none';
+        }
+
+        async function saveToGitHub() {
+            if (!isGitHubConnected) return;
+
+            try {
+                updateSyncStatus('saving', '💾 Saving...');
+
+                const data = {
+                    attendees: attendees,
+                    activities: activities,
+                    payments: payments,
+                    lastUpdated: new Date().toISOString()
+                };
+
+                const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `token ${githubToken}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        files: {
+                            'bachelor-party-data.json': {
+                                content: JSON.stringify(data, null, 2)
+                            }
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    lastSyncTime = new Date().toISOString();
+                    localStorage.setItem('lastSyncTime', lastSyncTime);
+                    updateSyncStatus('connected', '✅ Synced');
+                    updateLastSyncDisplay();
+                } else {
+                    throw new Error('Failed to save to GitHub');
+                }
+
+            } catch (error) {
+                console.error('Error saving to GitHub:', error);
+                updateSyncStatus('connected', '⚠️ Sync Error');
+            }
+        }
+
+        async function loadFromGitHub() {
+            if (!isGitHubConnected) return;
+
+            try {
+                updateSyncStatus('loading', '📥 Loading...');
+
+                const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+                    headers: {
+                        'Authorization': `token ${githubToken}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (response.ok) {
+                    const gist = await response.json();
+                    const content = gist.files['bachelor-party-data.json'].content;
+                    const data = JSON.parse(content);
+
+                    attendees = data.attendees || [];
+                    activities = data.activities || [];
+                    payments = data.payments || {};
+
+                    updateTables();
+                    updateSyncStatus('connected', '✅ Connected');
+                } else {
+                    throw new Error('Failed to load from GitHub');
+                }
+
+            } catch (error) {
+                console.error('Error loading from GitHub:', error);
+                updateSyncStatus('connected', '⚠️ Load Error');
+                loadLocalData(); // Fallback to local data
+            }
+        }
+
+        async function forceSync() {
+            if (isGitHubConnected) {
+                updateSyncStatus('loading', '🔄 Force syncing...');
+                await loadFromGitHub();
+            }
+        }
+
+        function updateSyncStatus(status, text) {
+            const statusEl = document.getElementById('syncStatus');
+            statusEl.className = `sync-status sync-${status}`;
+            statusEl.textContent = text;
+        }
+
+        function updateLastSyncDisplay() {
+            if (lastSyncTime) {
+                const date = new Date(lastSyncTime);
+                document.getElementById('lastSyncTime').textContent = 
+                    `Last synced: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+            }
+        }
+
+        function setupAttendeeView() {
+            document.getElementById('adminSections').style.display = 'none';
+            
+            const mainContent = document.getElementById('mainContent');
+            
+            // Check if user was previously remembered
+            const rememberedUser = localStorage.getItem('rememberedAttendee');
+            let rememberedUserIndex = null;
+            let rememberedUserName = '';
+            
+            if (rememberedUser) {
+                // Find the user in current attendees list
+                const foundUser = attendees.find((att, idx) => att.name === rememberedUser);
+                if (foundUser) {
+                    rememberedUserIndex = attendees.indexOf(foundUser);
+                    rememberedUserName = foundUser.name;
+                }
+            }
+            
+            // Keep the stats, but replace the admin content
+            const statsHtml = document.querySelector('.stats').outerHTML;
+            
+            mainContent.innerHTML = `
+                ${statsHtml}
+                <div class="attendee-selector">
+                    <h2 style="text-align: center; color: #667eea; margin-bottom: 10px;">Welcome to Anthony's Bachelor Party! 🎉</h2>
+                    <p style="text-align: center; color: #666; margin-bottom: 30px;">Select your name to view your payment status and event details</p>
+                    
+                    ${rememberedUserIndex !== null ? `
+                        <div class="remembered-user">
+                            <h3 style="margin-bottom: 10px; color: #10b981;">👋 Welcome back, ${rememberedUserName}!</h3>
+                            <div style="display: flex; gap: 10px;">
+                                <button onclick="viewMyStatus(${rememberedUserIndex})" style="flex: 1; background: #10b981;">View My Status</button>
+                                <button onclick="clearRememberedUser()" style="background: #6b7280;">Different Person</button>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 10px; font-weight: 600; padding: 0; background: none; border: none;">Who are you?</label>
+                        <select id="attendeeSelector" style="width: 100%; padding: 15px; font-size: 16px; border: 2px solid #e0e0e0; border-radius: 10px;">
+                            <option value="">-- Select Your Name --</option>
+                            ${attendees
+                                .map((att, idx) => ({ name: att.name, originalIndex: idx }))
+                                .sort((a, b) => a.name.localeCompare(b.name))
+                                .map(att => `<option value="${att.originalIndex}">${att.name}</option>`)
+                                .join('')}
+                        </select>
+                    </div>
+                    
+                    <button onclick="viewMyStatusFromDropdown()" style="width: 100%; padding: 15px; font-size: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600;">
+                        View My Status
+                    </button>
+                    
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                        <h3 style="color: #333; margin-bottom: 15px;">📅 Event Overview</h3>
+                        <div style="background: #f9fafb; padding: 15px; border-radius: 10px;">
+                            <p><strong>Total Activities:</strong> ${activities.length}</p>
+                            <p><strong>Total Attendees:</strong> ${attendees.length}</p>
+                            <p><strong>Total Cost:</strong> $${activities.reduce((sum, activity) => sum + activity.cost, 0).toFixed(2)}</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="personalView" style="display: none;"></div>
+            `;
+            updateStats();
+        }
+
+        function viewMyStatusFromDropdown() {
             const selector = document.getElementById('attendeeSelector');
             const selectedIdx = selector.value;
             
             if (selectedIdx === '') {
-                alert('Please select your name from the dropdown');
+                alert('Please select your name');
                 return;
             }
             
-            viewingAttendee = parseInt(selectedIdx);
-            setupReadOnlyView();
+            viewMyStatus(parseInt(selectedIdx));
         }
 
-        // Setup read-only view
-        function setupReadOnlyView() {
-            document.getElementById('readOnlyNotice').style.display = 'block';
-            document.getElementById('adminSections').style.display = 'none';
+        function viewMyStatus(attendeeIndex = null) {
+            let selectedIdx;
             
-            if (viewingAttendee !== null) {
-                // Add back button if coming from selector
-                const backButton = `
-                    <button onclick="backToSelector()" style="margin-bottom: 20px; background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);">
-                        ← Back to Name Selection
-                    </button>
-                `;
-                document.getElementById('readOnlyNotice').innerHTML = 
-                    '📋 This is a read-only view. Contact the organizer to make changes.' + 
-                    (viewingAttendee !== null ? `<br>${backButton}` : '');
-                    
-                document.getElementById('headerSubtitle').textContent = 
-                    `Welcome, ${attendees[viewingAttendee].name}! Here's your payment status`;
-                showAttendeePersonalView();
+            if (attendeeIndex !== null) {
+                selectedIdx = attendeeIndex;
+            } else {
+                const selector = document.getElementById('attendeeSelector');
+                selectedIdx = parseInt(selector.value);
+                
+                if (isNaN(selectedIdx)) {
+                    alert('Please select your name');
+                    return;
+                }
             }
             
-            updateTables();
-            updateStats();
+            viewingAttendee = selectedIdx;
+            
+            // Remember this user's choice
+            const selectedAttendee = attendees[selectedIdx];
+            if (selectedAttendee) {
+                localStorage.setItem('rememberedAttendee', selectedAttendee.name);
+            }
+            
+            showPersonalView();
         }
 
-        // Back to selector
-        function backToSelector() {
-            viewingAttendee = null;
-            setupAttendeeSelector();
+        function clearRememberedUser() {
+            localStorage.removeItem('rememberedAttendee');
+            setupAttendeeView(); // Refresh the view
         }
 
-        // Show attendee personal view
-        function showAttendeePersonalView() {
-            if (viewingAttendee === null) return;
+        function showPersonalView() {
+            document.querySelector('.attendee-selector').style.display = 'none';
+            const personalView = document.getElementById('personalView');
+            personalView.style.display = 'block';
             
             const attendee = attendees[viewingAttendee];
             let totalOwed = 0;
-            let paidActivities = [];
+            let paidCount = 0;
             let unpaidActivities = [];
+            let paidActivities = [];
             let freeActivities = [];
             
             activities.forEach((activity, actIdx) => {
@@ -739,6 +938,7 @@
                     const paymentKey = `${viewingAttendee}_${actIdx}`;
                     if (payments[paymentKey]) {
                         paidActivities.push(activity);
+                        paidCount++;
                     } else {
                         unpaidActivities.push(activity);
                         totalOwed += activity.cost;
@@ -748,413 +948,341 @@
                 }
             });
             
-            const personalView = document.getElementById('attendeePersonalView');
-            personalView.style.display = 'block';
             personalView.innerHTML = `
+                <button onclick="backToSelector()" style="margin-bottom: 20px; background: #6b7280;">← Back to Name Selection</button>
+                
                 <div class="attendee-summary">
                     <h2>Hi ${attendee.name}! 👋</h2>
-                    <div class="amount-owed">Total Amount Owed: ${totalOwed.toFixed(2)}</div>
+                    <div class="amount-owed">Total Owed: $${totalOwed.toFixed(2)}</div>
                     
                     ${unpaidActivities.length > 0 ? `
-                        <h3 style="margin-top: 20px; margin-bottom: 15px; color: #f59e0b;">⏳ Pending Payments (${unpaidActivities.length})</h3>
-                        <div style="display: flex; flex-direction: column; gap: 10px;">
-                            ${unpaidActivities.map((activity, idx) => {
-                                const venmoLink = generateVenmoLink(activity.cost, `Bachelor Party - ${activity.name}`);
-                                const activityDate = new Date(activity.date);
-                                return `
-                                    <div style="background: #fef3c7; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b;">
-                                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                                            <div>
-                                                <strong>${activity.name}</strong><br>
-                                                <small style="color: #666;">📅 ${activityDate.toLocaleDateString()} at ${activityDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small><br>
-                                                <small style="color: #666;">📍 ${activity.location || 'TBD'}</small>
-                                                ${activity.description ? `<br><small style="color: #666;">ℹ️ ${activity.description}</small>` : ''}
-                                            </div>
-                                            <div style="text-align: right;">
-                                                <div style="font-size: 1.2em; font-weight: bold; color: #92400e; margin-bottom: 5px;">${activity.cost.toFixed(2)}</div>
-                                                <a href="${venmoLink}" target="_blank" class="venmo-link">💳 Pay Now</a>
-                                                <button class="action-btn calendar-btn" onclick="generateICS(activities[${activities.indexOf(activity)}])" style="margin-top: 5px;">📅 Add to Calendar</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    ` : ''}
-                    
-                    ${paidActivities.length > 0 ? `
-                        <h3 style="margin-top: 20px; margin-bottom: 15px; color: #10b981;">✅ Paid Activities (${paidActivities.length})</h3>
-                        <div style="display: flex; flex-direction: column; gap: 10px;">
-                            ${paidActivities.map(activity => {
-                                const activityDate = new Date(activity.date);
-                                return `
-                                    <div style="background: #d1fae5; padding: 15px; border-radius: 8px; border-left: 4px solid #10b981;">
-                                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                                            <div>
-                                                <strong>${activity.name}</strong><br>
-                                                <small style="color: #666;">📅 ${activityDate.toLocaleDateString()} at ${activityDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small><br>
-                                                <small style="color: #666;">📍 ${activity.location || 'TBD'}</small>
-                                            </div>
-                                            <div style="text-align: right;">
-                                                <span class="payment-status status-paid">PAID ✓</span>
-                                                <button class="action-btn calendar-btn" onclick="generateICS(activities[${activities.indexOf(activity)}])" style="margin-top: 5px;">📅 Add to Calendar</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    ` : ''}
-                    
-                    ${freeActivities.length > 0 ? `
-                        <h3 style="margin-top: 20px; margin-bottom: 15px; color: #667eea;">🎉 Free Activities (${freeActivities.length})</h3>
-                        <div style="display: flex; flex-direction: column; gap: 10px;">
-                            ${freeActivities.map(activity => {
-                                const activityDate = new Date(activity.date);
-                                return `
-                                    <div style="background: #ede9fe; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea;">
-                                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                                            <div>
-                                                <strong>${activity.name}</strong><br>
-                                                <small style="color: #666;">📅 ${activityDate.toLocaleDateString()} at ${activityDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small><br>
-                                                <small style="color: #666;">📍 ${activity.location || 'TBD'}</small>
-                                                ${activity.description ? `<br><small style="color: #666;">ℹ️ ${activity.description}</small>` : ''}
-                                            </div>
-                                            <div>
-                                                <button class="action-btn calendar-btn" onclick="generateICS(activities[${activities.indexOf(activity)}])">📅 Add to Calendar</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    ` : ''}
-                    
-                    ${unpaidActivities.length === 0 && paidActivities.length === 0 && freeActivities.length === 0 ? 
-                        '<p style="text-align: center; color: #666; margin-top: 20px;">No activities scheduled yet!</p>' : ''}
-                    
-                    <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
-                        <h3 style="margin-bottom: 15px; color: #333;">📊 Summary</h3>
-                        <div style="background: #f9fafb; padding: 15px; border-radius: 8px;">
-                            <p><strong>Total Owed:</strong> <span style="color: #f59e0b; font-weight: bold;">${totalOwed.toFixed(2)}</span></p>
-                            <p><strong>Activities Paid:</strong> ${paidActivities.length} of ${paidActivities.length + unpaidActivities.length}</p>
-                            <p><strong>Payment Method:</strong> Venmo to ${venmoUsername || 'TBD'}</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Preview attendee view
-        function previewAttendeeView() {
-            if (attendees.length === 0) {
-                alert('Please add at least one attendee first to preview their view.');
-                return;
-            }
-            
-            // Create a modal to select which attendee to preview
-            const modal = document.createElement('div');
-            modal.className = 'modal';
-            modal.style.display = 'block';
-            modal.innerHTML = `
-                <div class="modal-content">
-                    <span class="close" onclick="this.parentElement.parentElement.remove()">&times;</span>
-                    <h2 style="margin-bottom: 20px; color: #667eea;">Preview Attendee View</h2>
-                    <p style="margin-bottom: 15px;">Select an attendee to preview their personalized view:</p>
-                    <select id="previewAttendeeSelect" style="width: 100%; margin-bottom: 20px;">
-                        ${attendees.map((att, idx) => `<option value="${idx}">${att.name}</option>`).join('')}
-                    </select>
-                    <button onclick="showPreview()" style="width: 100%;">Show Preview</button>
-                </div>
-            `;
-            document.body.appendChild(modal);
-            
-            // Close modal when clicking outside
-            modal.onclick = function(event) {
-                if (event.target === modal) {
-                    modal.remove();
-                }
-            };
-        }
-        
-        // Show preview of selected attendee
-        function showPreview() {
-            const selectedIdx = parseInt(document.getElementById('previewAttendeeSelect').value);
-            const attendee = attendees[selectedIdx];
-            
-            // Close the selection modal
-            document.querySelector('.modal').remove();
-            
-            // Create preview modal
-            const previewModal = document.createElement('div');
-            previewModal.className = 'modal';
-            previewModal.style.display = 'block';
-            previewModal.innerHTML = `
-                <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
-                    <span class="close" onclick="this.parentElement.parentElement.remove()">&times;</span>
-                    <h2 style="margin-bottom: 20px; color: #667eea;">Preview: ${attendee.name}'s View</h2>
-                    <div style="border: 2px solid #e5e7eb; border-radius: 10px; padding: 20px; background: #f9fafb;">
-                        ${generateAttendeeViewHTML(selectedIdx)}
-                    </div>
-                    <button onclick="this.parentElement.parentElement.remove()" style="width: 100%; margin-top: 20px;">Close Preview</button>
-                </div>
-            `;
-            document.body.appendChild(previewModal);
-            
-            // Close modal when clicking outside
-            previewModal.onclick = function(event) {
-                if (event.target === previewModal) {
-                    previewModal.remove();
-                }
-            };
-        }
-        
-        // Generate attendee view HTML
-        function generateAttendeeViewHTML(attendeeIdx) {
-            const attendee = attendees[attendeeIdx];
-            let totalOwed = 0;
-            let paidActivities = [];
-            let unpaidActivities = [];
-            
-            activities.forEach((activity, actIdx) => {
-                if (activity.cost > 0) {
-                    const paymentKey = `${attendeeIdx}_${actIdx}`;
-                    if (payments[paymentKey]) {
-                        paidActivities.push(activity);
-                    } else {
-                        unpaidActivities.push(activity);
-                        totalOwed += activity.cost;
-                    }
-                }
-            });
-            
-            return `
-                <div style="background: #fef3c7; border: 2px solid #f59e0b; color: #92400e; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: 600;">
-                    📋 This is what ${attendee.name} will see (read-only view)
-                </div>
-                <div class="attendee-summary" style="background: white; padding: 20px; border-radius: 10px;">
-                    <h2>Hi ${attendee.name}! 👋</h2>
-                    <p style="color: #666; margin-top: 10px;">Welcome to Anthony Lisheron's Bachelor Party payment tracker</p>
-                    <div class="amount-owed" style="font-size: 2em; font-weight: bold; color: #f59e0b; margin: 20px 0;">
-                        Total Amount Owed: ${totalOwed.toFixed(2)}
-                    </div>
-                    
-                    ${unpaidActivities.length > 0 ? `
-                        <h3 style="margin-top: 20px; margin-bottom: 15px; color: #f59e0b;">⏳ Pending Payments (${unpaidActivities.length})</h3>
-                        <div style="display: flex; flex-direction: column; gap: 10px;">
-                            ${unpaidActivities.map(activity => {
-                                const venmoLink = generateVenmoLink(activity.cost, `Bachelor Party - ${activity.name}`);
-                                return `
-                                    <div style="background: #fef3c7; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b;">
-                                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                                            <div style="text-align: left;">
-                                                <strong>${activity.name}</strong><br>
-                                                <small style="color: #666;">${new Date(activity.date).toLocaleDateString()} - ${activity.location || 'TBD'}</small>
-                                                ${activity.description ? `<br><small style="color: #666;">${activity.description}</small>` : ''}
-                                            </div>
-                                            <div style="text-align: right;">
-                                                <div style="font-size: 1.2em; font-weight: bold; color: #92400e; margin-bottom: 5px;">${activity.cost.toFixed(2)}</div>
-                                                <span class="venmo-link" style="background: #3b82f6; color: white; padding: 8px 12px; border-radius: 5px; display: inline-block;">💳 Pay via Venmo</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    ` : ''}
-                    
-                    ${paidActivities.length > 0 ? `
-                        <h3 style="margin-top: 20px; margin-bottom: 15px; color: #10b981;">✅ Paid Activities (${paidActivities.length})</h3>
-                        <div style="display: flex; flex-direction: column; gap: 10px;">
-                            ${paidActivities.map(activity => `
-                                <div style="background: #d1fae5; padding: 15px; border-radius: 8px; border-left: 4px solid #10b981;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                                        <div style="text-align: left;">
-                                            <strong>${activity.name}</strong><br>
-                                            <small style="color: #666;">${new Date(activity.date).toLocaleDateString()} - ${activity.location || 'TBD'}</small>
-                                        </div>
-                                        <div>
-                                            <span style="background: #10b981; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">PAID ✓</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    ` : ''}
-                    
-                    ${unpaidActivities.length === 0 && paidActivities.length === 0 ? 
-                        '<p style="text-align: center; color: #666; margin-top: 20px;">No activities with costs yet!</p>' : ''}
-                    
-                    ${activities.filter(a => a.cost === 0).length > 0 ? `
-                        <h3 style="margin-top: 20px; margin-bottom: 15px; color: #667eea;">📅 Free Activities</h3>
-                        <div style="display: flex; flex-direction: column; gap: 10px;">
-                            ${activities.filter(a => a.cost === 0).map(activity => `
-                                <div style="background: #ede9fe; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea;">
-                                    <strong>${activity.name}</strong><br>
-                                    <small style="color: #666;">${new Date(activity.date).toLocaleDateString()} at ${new Date(activity.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small><br>
-                                    <small style="color: #666;">📍 ${activity.location || 'TBD'}</small>
-                                </div>
-                            `).join('')}
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        }
-
-        // Generate share link
-        function generateShareLink() {
-            // Get the correct base URL (works for both local and GitHub Pages)
-            const baseURL = window.location.href.split('?')[0];
-            
-            const data = {
-                attendees: attendees,
-                activities: activities,
-                payments: payments,
-                venmoUsername: venmoUsername
-            };
-            const encodedData = btoa(JSON.stringify(data));
-            
-            // Generate the single universal link
-            const universalLink = `${baseURL}?view=readonly&data=${encodedData}`;
-            
-            // Show the share links
-            const container = document.getElementById('shareLinkContainer');
-            container.style.display = 'block';
-            container.innerHTML = `
-                <p style="margin-bottom: 15px; font-weight: 600; color: #10b981;">✅ Perfect for Group Texts!</p>
-                <p style="margin-bottom: 10px; color: #666;">Send this ONE link to everyone. Each person selects their name to see their personalized view:</p>
-                <div class="share-link" style="background: #f0fdf4; padding: 15px; border-radius: 8px; border: 2px solid #10b981;">
-                    <input type="text" id="shareLink" value="${universalLink}" readonly style="font-size: 14px;">
-                    <button onclick="copyShareLink()" style="background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);">Copy Link</button>
-                </div>
-                
-                <div style="margin-top: 20px; padding: 15px; background: #eff6ff; border-radius: 8px;">
-                    <p style="margin-bottom: 10px; font-weight: 600;">📱 Sample Text Message:</p>
-                    <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #cbd5e1; font-style: italic; color: #475569;">
-                        "Hey everyone! 🎉 Here's the link for Anthony's bachelor party details and payment tracking. Click the link, select your name, and you'll see what you owe plus all the event info: ${universalLink}"
-                    </div>
-                    <button onclick="copySampleText('${encodeURIComponent(universalLink)}')" style="margin-top: 10px; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);">Copy Sample Text</button>
-                </div>
-                
-                <details style="margin-top: 20px;">
-                    <summary style="cursor: pointer; color: #667eea; font-weight: 600;">Optional: Individual Direct Links</summary>
-                    <div style="margin-top: 15px; max-height: 300px; overflow-y: auto;">
-                        ${attendees.map((attendee, index) => {
-                            const individualLink = `${baseURL}?view=readonly&attendee=${index}&data=${encodedData}`;
+                        <h3 style="color: #f59e0b; margin: 20px 0 15px;">⏳ Pending Payments (${unpaidActivities.length})</h3>
+                        ${unpaidActivities.map(activity => {
+                            const venmoLink = `https://venmo.com/${venmoUsername}?txn=pay&amount=${activity.cost}&note=${encodeURIComponent('Bachelor Party - ' + activity.name)}`;
+                            const startDate = new Date(activity.startDate);
+                            const endDate = new Date(activity.endDate);
+                            const duration = activity.endDate ? ` - ${endDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}` : '';
+                            
                             return `
-                                <div style="background: #f9fafb; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <strong>${attendee.name}</strong>
-                                    <div class="share-link" style="margin-top: 5px;">
-                                        <input type="text" value="${individualLink}" readonly style="font-size: 12px;">
-                                        <button onclick="copyToClipboard('${encodeURIComponent(individualLink)}')">Copy</button>
+                                <div class="activity-card pending">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                                        <div>
+                                            <strong>${activity.name}</strong><br>
+                                            <small>📅 ${startDate.toLocaleDateString()} at ${startDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${duration}</small><br>
+                                            <small>📍 ${activity.location || 'TBD'}</small>
+                                        </div>
+                                        <div style="text-align: right;">
+                                            <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 5px;">$${activity.cost.toFixed(2)}</div>
+                                            <a href="${venmoLink}" target="_blank" class="venmo-link">💳 Pay Now</a>
+                                            <button class="calendar-btn" onclick="downloadCalendar(${activities.indexOf(activity)})">📅 Calendar</button>
+                                        </div>
                                     </div>
                                 </div>
                             `;
                         }).join('')}
+                    ` : ''}
+                    
+                    ${paidActivities.length > 0 ? `
+                        <h3 style="color: #10b981; margin: 20px 0 15px;">✅ Paid Activities (${paidActivities.length})</h3>
+                        ${paidActivities.map(activity => {
+                            const startDate = new Date(activity.startDate);
+                            const endDate = new Date(activity.endDate);
+                            const duration = activity.endDate ? ` - ${endDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}` : '';
+                            
+                            return `
+                                <div class="activity-card paid">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <strong>${activity.name}</strong><br>
+                                            <small>📅 ${startDate.toLocaleDateString()} at ${startDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${duration}</small><br>
+                                            <small>📍 ${activity.location || 'TBD'}</small>
+                                        </div>
+                                        <div>
+                                            <span style="background: #10b981; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">PAID ✓</span>
+                                            <button class="calendar-btn" onclick="downloadCalendar(${activities.indexOf(activity)})">📅 Calendar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    ` : ''}
+                    
+                    ${freeActivities.length > 0 ? `
+                        <h3 style="color: #667eea; margin: 20px 0 15px;">🎉 Free Activities (${freeActivities.length})</h3>
+                        ${freeActivities.map(activity => {
+                            const startDate = new Date(activity.startDate);
+                            const endDate = new Date(activity.endDate);
+                            const duration = activity.endDate ? ` - ${endDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}` : '';
+                            
+                            return `
+                                <div class="activity-card free">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <strong>${activity.name}</strong><br>
+                                            <small>📅 ${startDate.toLocaleDateString()} at ${startDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${duration}</small><br>
+                                            <small>📍 ${activity.location || 'TBD'}</small>
+                                        </div>
+                                        <button class="calendar-btn" onclick="downloadCalendar(${activities.indexOf(activity)})">📅 Calendar</button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    ` : ''}
+                    
+                    <div style="margin-top: 30px; padding: 15px; background: #f9fafb; border-radius: 8px;">
+                        <h3>📊 Summary</h3>
+                        <p><strong>Total Owed:</strong> $${totalOwed.toFixed(2)}</p>
+                        <p><strong>Activities Paid:</strong> ${paidCount} of ${paidActivities.length + unpaidActivities.length}</p>
+                        <p><strong>Payment:</strong> Venmo @${venmoUsername}</p>
                     </div>
-                </details>
+                </div>
             `;
         }
-        
-        // Copy sample text message
-        function copySampleText(encodedLink) {
-            const link = decodeURIComponent(encodedLink);
-            const sampleText = `Hey everyone! 🎉 Here's the link for Anthony's bachelor party details and payment tracking. Click the link, select your name, and you'll see what you owe plus all the event info: ${link}`;
-            copyToClipboard(sampleText);
+
+        function backToSelector() {
+            document.querySelector('.attendee-selector').style.display = 'block';
+            document.getElementById('personalView').style.display = 'none';
         }
 
-        // Copy to clipboard
-        function copyToClipboard(text) {
-            // Decode if it was encoded
-            if (text.includes('%')) {
-                text = decodeURIComponent(text);
-            }
+        function downloadCalendar(activityIndex) {
+            const activity = activities[activityIndex];
+            const startDate = new Date(activity.startDate);
+            const endDate = activity.endDate ? new Date(activity.endDate) : new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
             
-            // Try modern clipboard API first
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).then(() => {
-                    alert('Link copied to clipboard!');
-                }).catch(() => {
-                    fallbackCopyToClipboard(text);
-                });
-            } else {
-                fallbackCopyToClipboard(text);
-            }
-        }
-        
-        // Fallback copy method for older browsers
-        function fallbackCopyToClipboard(text) {
-            const tempInput = document.createElement('textarea');
-            tempInput.value = text;
-            tempInput.style.position = 'fixed';
-            tempInput.style.opacity = '0';
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            tempInput.setSelectionRange(0, 99999); // For mobile devices
+            const formatDate = (date) => {
+                return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+            };
             
-            try {
-                document.execCommand('copy');
-                alert('Link copied to clipboard!');
-            } catch (err) {
-                alert('Failed to copy. Please select and copy the link manually.');
-            }
-            
-            document.body.removeChild(tempInput);
+            const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Bachelor Party//EN
+BEGIN:VEVENT
+UID:${Date.now()}@bachelorparty.com
+DTSTAMP:${formatDate(new Date())}
+DTSTART:${formatDate(startDate)}
+DTEND:${formatDate(endDate)}
+SUMMARY:${activity.name}
+DESCRIPTION:Anthony's Bachelor Party - ${activity.name}
+LOCATION:${activity.location || 'TBD'}
+END:VEVENT
+END:VCALENDAR`;
+
+            const blob = new Blob([icsContent], { type: 'text/calendar' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${activity.name}.ics`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
-        // Copy share link
-        function copyShareLink() {
-            const shareLink = document.getElementById('shareLink');
-            shareLink.select();
-            document.execCommand('copy');
-            alert('Link copied to clipboard!');
-        }
-
-        // Load data from localStorage
-        function loadData() {
-            if (isReadOnly) return; // Don't load from localStorage if in read-only mode
-            
-            const savedAttendees = localStorage.getItem('bachelorPartyAttendees');
-            const savedActivities = localStorage.getItem('bachelorPartyActivities');
-            const savedPayments = localStorage.getItem('bachelorPartyPayments');
-            const savedVenmo = localStorage.getItem('bachelorPartyVenmo');
-            
-            if (savedAttendees) attendees = JSON.parse(savedAttendees);
-            if (savedActivities) activities = JSON.parse(savedActivities);
-            if (savedPayments) payments = JSON.parse(savedPayments);
-            if (savedVenmo) {
-                venmoUsername = savedVenmo;
-                document.getElementById('venmoUsername').value = venmoUsername;
+        // Admin functions
+        function addAttendee() {
+            const name = document.getElementById('attendeeName').value.trim();
+            if (!name) {
+                alert('Please enter a name');
+                return;
             }
             
+            attendees.push({ name });
+            document.getElementById('attendeeName').value = '';
+            saveData();
             updateTables();
-            updateStats();
         }
 
-        // Save data to localStorage
-        function saveData() {
-            if (isReadOnly) return; // Don't save if in read-only mode
+        function addActivity() {
+            const name = document.getElementById('activityName').value.trim();
+            const startDate = document.getElementById('activityStartDate').value;
+            const endDate = document.getElementById('activityEndDate').value;
+            const location = document.getElementById('activityLocation').value.trim();
+            const cost = parseFloat(document.getElementById('activityCost').value) || 0;
             
-            localStorage.setItem('bachelorPartyAttendees', JSON.stringify(attendees));
-            localStorage.setItem('bachelorPartyActivities', JSON.stringify(activities));
-            localStorage.setItem('bachelorPartyPayments', JSON.stringify(payments));
-            updateStats();
+            if (!name) {
+                alert('Please enter an activity name');
+                return;
+            }
+            
+            if (!startDate) {
+                alert('Please enter a start date and time');
+                return;
+            }
+            
+            activities.push({ name, startDate, endDate, location, cost });
+            
+            // Clear inputs
+            document.getElementById('activityName').value = '';
+            document.getElementById('activityStartDate').value = '';
+            document.getElementById('activityEndDate').value = '';
+            document.getElementById('activityLocation').value = '';
+            document.getElementById('activityCost').value = '';
+            
+            saveData();
+            updateTables();
         }
 
-        // Toggle payment status
+        function deleteAttendee(index) {
+            if (confirm('Delete this attendee?')) {
+                attendees.splice(index, 1);
+                // Clean up payments
+                Object.keys(payments).forEach(key => {
+                    const [attendeeIdx] = key.split('_').map(Number);
+                    if (attendeeIdx === index) {
+                        delete payments[key];
+                    } else if (attendeeIdx > index) {
+                        const [, activityIdx] = key.split('_').map(Number);
+                        delete payments[key];
+                        payments[`${attendeeIdx - 1}_${activityIdx}`] = payments[key];
+                    }
+                });
+                saveData();
+                updateTables();
+            }
+        }
+
+        function deleteActivity(index) {
+            if (confirm('Delete this activity?')) {
+                activities.splice(index, 1);
+                // Clean up payments
+                Object.keys(payments).forEach(key => {
+                    const [attendeeIdx, activityIdx] = key.split('_').map(Number);
+                    if (activityIdx === index) {
+                        delete payments[key];
+                    } else if (activityIdx > index) {
+                        delete payments[key];
+                        payments[`${attendeeIdx}_${activityIdx - 1}`] = payments[key];
+                    }
+                });
+                saveData();
+                updateTables();
+            }
+        }
+
         function togglePayment(attendeeIdx, activityIdx) {
-            if (isReadOnly) return;
-            
             const key = `${attendeeIdx}_${activityIdx}`;
             payments[key] = !payments[key];
             saveData();
             updatePaymentTracking();
+        }
+
+        function generateShareLink() {
+            if (attendees.length === 0) {
+                alert('Please add at least one attendee first');
+                return;
+            }
+            
+            const baseURL = window.location.href.split('?')[0];
+            let shareLink;
+            
+            if (isGitHubConnected) {
+                // Use gist-based sharing for real-time updates
+                shareLink = `${baseURL}?view=readonly&gist=${gistId}`;
+            } else {
+                // Fallback to data parameter method
+                const data = { attendees, activities, payments };
+                const encodedData = btoa(JSON.stringify(data));
+                shareLink = `${baseURL}?view=readonly&data=${encodedData}`;
+            }
+            
+            document.getElementById('shareContainer').innerHTML = `
+                <div class="share-container">
+                    <h3>📱 Send This Link to Everyone:</h3>
+                    ${isGitHubConnected ? `
+                        <div style="background: #d1fae5; padding: 10px; border-radius: 5px; margin-bottom: 15px; border: 1px solid #10b981;">
+                            <strong>🔄 Live Updates Enabled!</strong> This link will always show the latest data from GitHub.
+                        </div>
+                    ` : `
+                        <div style="background: #fef3c7; padding: 10px; border-radius: 5px; margin-bottom: 15px; border: 1px solid #f59e0b;">
+                            <strong>📸 Snapshot Link:</strong> This link contains current data only. Set up GitHub sync for live updates.
+                        </div>
+                    `}
+                    <div class="share-link">
+                        <input type="text" value="${shareLink}" readonly style="font-size: 14px;">
+                        <button onclick="copyToClipboard('${shareLink}')">Copy Link</button>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px;">Sample Group Text:</h4>
+                    <div style="background: white; padding: 15px; border-radius: 8px; font-style: italic; margin: 10px 0;">
+                        "Hey everyone! 🎉 Here's the link for my bachelor party details and payment tracking. Click the link, select your name, and you'll see what you owe plus all the event info: ${shareLink}"
+                    </div>
+                    <button onclick="copyToClipboard('Hey everyone! 🎉 Here\\'s the link for my bachelor party details and payment tracking. Click the link, select your name, and you\\'ll see what you owe plus all the event info: ${shareLink}')">Copy Sample Text</button>
+                </div>
+            `;
+            document.getElementById('shareContainer').style.display = 'block';
+        }
+
+        function copyToClipboard(text) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Copied to clipboard!');
+                });
+            } else {
+                // Fallback
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Copied to clipboard!');
+            }
+        }
+
+        function updateTables() {
+            updateAttendeesTable();
+            updateActivitiesTable();
+            updatePaymentTracking();
             updateStats();
         }
 
-        // Update payment tracking table
+        function updateAttendeesTable() {
+            const tbody = document.getElementById('attendeesBody');
+            if (attendees.length === 0) {
+                tbody.innerHTML = '<tr class="empty-state"><td colspan="2">No attendees added yet</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = attendees.map((attendee, index) => `
+                <tr>
+                    <td>${attendee.name}</td>
+                    <td>
+                        <button class="action-btn delete-btn" onclick="deleteAttendee(${index})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateActivitiesTable() {
+            const tbody = document.getElementById('activitiesBody');
+            if (activities.length === 0) {
+                tbody.innerHTML = '<tr class="empty-state"><td colspan="6">No activities planned yet</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = activities.map((activity, index) => {
+                const startDate = activity.startDate ? new Date(activity.startDate) : null;
+                const endDate = activity.endDate ? new Date(activity.endDate) : null;
+                const startStr = startDate ? `${startDate.toLocaleDateString()} ${startDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}` : 'TBD';
+                const endStr = endDate ? `${endDate.toLocaleDateString()} ${endDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}` : 'TBD';
+                
+                return `
+                    <tr>
+                        <td>${activity.name}</td>
+                        <td>${startStr}</td>
+                        <td>${endStr}</td>
+                        <td>${activity.location || 'TBD'}</td>
+                        <td>$${activity.cost.toFixed(2)}</td>
+                        <td>
+                            <button class="action-btn delete-btn" onclick="deleteActivity(${index})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
         function updatePaymentTracking() {
-            const container = document.getElementById('paymentTrackingContainer');
+            const container = document.getElementById('paymentContainer');
             
             if (activities.filter(a => a.cost > 0).length === 0 || attendees.length === 0) {
                 container.innerHTML = '<p class="empty-state">Add attendees and activities with costs to track payments</p>';
@@ -1163,20 +1291,14 @@
             
             let html = '<div class="table-container"><table><thead><tr><th>Attendee</th>';
             
-            // Add column headers for each activity with cost
-            activities.forEach((activity, idx) => {
+            activities.forEach(activity => {
                 if (activity.cost > 0) {
                     html += `<th>${activity.name}<br><small>$${activity.cost.toFixed(2)}</small></th>`;
                 }
             });
             
-            html += '<th>Total Owed</th>';
-            if (!isReadOnly) {
-                html += '<th>Send Reminder</th>';
-            }
-            html += '</tr></thead><tbody>';
+            html += '<th>Total Owed</th></tr></thead><tbody>';
             
-            // Add rows for each attendee
             attendees.forEach((attendee, attIdx) => {
                 let totalOwed = 0;
                 html += `<tr><td><strong>${attendee.name}</strong></td>`;
@@ -1186,69 +1308,58 @@
                         const key = `${attIdx}_${actIdx}`;
                         const isPaid = payments[key];
                         
-                        if (!isPaid) {
-                            totalOwed += activity.cost;
-                        }
+                        if (!isPaid) totalOwed += activity.cost;
                         
-                        if (isReadOnly) {
-                            html += `<td style="text-align: center;">
-                                ${isPaid ? 
-                                    '<span class="payment-status status-paid">PAID</span>' : 
-                                    '<span class="payment-status status-pending">PENDING</span>'}
-                            </td>`;
-                        } else {
-                            html += `<td style="text-align: center;">
-                                <input type="checkbox" 
-                                    class="payment-checkbox" 
-                                    ${isPaid ? 'checked' : ''} 
-                                    onchange="togglePayment(${attIdx}, ${actIdx})"
-                                    title="${isPaid ? 'Mark as unpaid' : 'Mark as paid'}">
-                                <br>
-                                <small>${isPaid ? '✅ Paid' : '⏳ Pending'}</small>
-                            </td>`;
-                        }
+                        html += `<td style="text-align: center;">
+                            <input type="checkbox" 
+                                class="payment-checkbox" 
+                                ${isPaid ? 'checked' : ''} 
+                                onchange="togglePayment(${attIdx}, ${actIdx})">
+                            <br><small>${isPaid ? '✅ Paid' : '⏳ Pending'}</small>
+                        </td>`;
                     }
                 });
                 
                 html += `<td style="text-align: center; font-weight: bold; color: ${totalOwed > 0 ? '#f59e0b' : '#10b981'};">
                     $${totalOwed.toFixed(2)}
-                </td>`;
-                
-                if (!isReadOnly && totalOwed > 0) {
-                    const reminderLink = generateReminderLink(attendee, totalOwed);
-                    html += `<td><a href="${reminderLink}" class="action-btn venmo-btn" style="text-decoration: none;">📧 Email</a></td>`;
-                } else if (!isReadOnly) {
-                    html += '<td>-</td>';
-                }
-                
-                html += '</tr>';
+                </td></tr>`;
             });
             
             html += '</tbody></table></div>';
             container.innerHTML = html;
         }
 
-        // Generate reminder email link
-        function generateReminderLink(attendee, totalOwed) {
-            const subject = encodeURIComponent('Bachelor Party Payment Reminder');
-            const unpaidActivities = [];
+        function updateStats() {
+            document.getElementById('totalAttendees').textContent = attendees.length;
+            document.getElementById('totalActivities').textContent = activities.length;
             
-            activities.forEach((activity, actIdx) => {
-                if (activity.cost > 0) {
-                    const key = `${attendees.indexOf(attendee)}_${actIdx}`;
-                    if (!payments[key]) {
-                        unpaidActivities.push(`- ${activity.name}: ${activity.cost.toFixed(2)}`);
-                    }
-                }
-            });
+            const totalCost = activities.reduce((sum, activity) => sum + activity.cost, 0);
+            document.getElementById('totalCost').textContent = `$${totalCost.toFixed(2)}`;
+        }
+
+        function loadLocalData() {
+            const savedAttendees = localStorage.getItem('bachelorPartyAttendees');
+            const savedActivities = localStorage.getItem('bachelorPartyActivities');
+            const savedPayments = localStorage.getItem('bachelorPartyPayments');
             
-            const body = encodeURIComponent(
-                `Hi ${attendee.name},\n\n` +
-                `Just a friendly reminder about your pending payments for the bachelor party:\n\n` +
-                `${unpaidActivities.join('\n')}\n\n` +
-                `Total Amount Due: ${totalOwed.toFixed(2)}\n\n` +
-                `You can pay via Venmo to ${venmoUsername || '[Venmo username not set]'}\n\n` +
-                `Thanks!\n`
-            );
+            if (savedAttendees) attendees = JSON.parse(savedAttendees);
+            if (savedActivities) activities = JSON.parse(savedActivities);
+            if (savedPayments) payments = JSON.parse(savedPayments);
             
-            return `mailto:${attendee.email}?subject=${subject}&body=${body}`;
+            updateTables();
+        }
+
+        function saveData() {
+            // Save to localStorage as backup
+            localStorage.setItem('bachelorPartyAttendees', JSON.stringify(attendees));
+            localStorage.setItem('bachelorPartyActivities', JSON.stringify(activities));
+            localStorage.setItem('bachelorPartyPayments', JSON.stringify(payments));
+            
+            // Save to GitHub if connected
+            if (isGitHubConnected) {
+                saveToGitHub();
+            }
+        }
+    </script>
+</body>
+</html>
